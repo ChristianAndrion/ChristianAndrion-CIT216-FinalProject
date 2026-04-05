@@ -4,6 +4,8 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     
+    public HealthBarScript healthBar;
+
     public float moveSpeed = 5.0f;
     public float sprintSpeed = 7.0f;
     public float rotationSmoothTime = 0.12f;
@@ -45,6 +47,11 @@ public class PlayerController : MonoBehaviour
     private void OnMove(InputValue moveVal)
     {
         _moveInput = moveVal.Get<Vector2>();
+    }
+
+    private void OnAttack(InputValue AttackVal)
+    {
+        healthBar.UpdateHealth(10);
     }
 
     private void Move()
