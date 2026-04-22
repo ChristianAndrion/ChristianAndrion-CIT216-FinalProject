@@ -7,22 +7,22 @@ public class HealthBarScript : MonoBehaviour
 {
     public RectTransform backgroundBar;
     public RectTransform bar;
-    public float maxHealth;
+    public float maxBarValue;
     public float barHeight;
     public float barWidth;
-    private float currentHealth;
-  
 
-    public float Health
+    private float currentBarValue;
+  
+    public float BarValue
     {
         get
         {
-            return currentHealth;
+            return currentBarValue;
         }
         set
         {
-            currentHealth -= value;
-            if(currentHealth<=0)
+            currentBarValue -= value;
+            if(currentBarValue<=0)
             {
                 //TODO - Insert Death Script
             }
@@ -31,13 +31,13 @@ public class HealthBarScript : MonoBehaviour
 
     void Start()
     {
-        currentHealth = maxHealth;
+        currentBarValue = maxBarValue;
     }
 
-    public void UpdateHealth(float health)
+    public void UpdateBarValue(float value)
     {
-        Health = health;
-        float newWidth = (Health/maxHealth) * barWidth;
+        BarValue = value;
+        float newWidth = (BarValue/maxBarValue) * barWidth;
 
         bar.sizeDelta = new Vector2(newWidth,barHeight);
         

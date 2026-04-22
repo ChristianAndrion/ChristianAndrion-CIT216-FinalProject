@@ -89,6 +89,7 @@ public class EnemyController : MonoBehaviour
         {
             Vector3 randomPosition = patrolDistance * Random.insideUnitSphere;
             NavMeshHit hit;
+
             //Finding on our map
             NavMesh.SamplePosition(transform.position + randomPosition, out hit, 10f, NavMesh.AllAreas);
             agent.SetDestination(hit.position);
@@ -140,9 +141,6 @@ public class EnemyController : MonoBehaviour
             {
                 anim.SetBool("IsAttacking", true);
                 elapsedTime = 0f; //Just attacked, reset count
-
-                //Below is spaghetti code
-                //playerTrans.gameObject.GetComponent<PlayerController>().PlayerDamage(10);
 
                 EventManager.TriggerEvent("PlayerDamager", damageAmount);
             }

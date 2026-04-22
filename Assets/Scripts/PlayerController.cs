@@ -1,10 +1,12 @@
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
     
     public HealthBarScript healthBar;
+    public HealthBarScript staminaBar;
 
     public float moveSpeed = 5.0f;
     public float sprintSpeed = 7.0f;
@@ -24,7 +26,7 @@ public class PlayerController : MonoBehaviour
     private Vector2 _moveInput;
     private bool _sprinting = false;
 
-
+    private UnityAction<int> DamageListener;
 
     private void Awake()
     {
@@ -39,9 +41,20 @@ public class PlayerController : MonoBehaviour
             _controller = GetComponent<CharacterController>();
             _playerInput = GetComponent<PlayerInput>();
     }
-    private void Update()
+    private void FixedUpdate()
     {
         Move();
+    }
+
+    private void OnEnable()
+    {
+        DamageListener = new UnityAction<int>(PlayerDamage);// Delegate points to function that handles event
+        EventManager.StartListening("PlayerDamager", DamageListener); //Like and subscribe to an event
+    }
+
+    private void OnDisable()
+    {
+        EventManager.StopListening("PlayerDamager", DamageListener);
     }
 
     private void OnMove(InputValue moveVal)
@@ -51,7 +64,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnAttack(InputValue AttackVal)
     {
-        healthBar.UpdateHealth(10);
+        //healthBar.UpdateBarValue(10);
     }
 
     private void Move()
@@ -59,13 +72,23 @@ public class PlayerController : MonoBehaviour
         //Code modified from Unity Starter 3D character movement script
 
         float isSprintHeld = _playerInput.actions["Sprint"].ReadValue<float>();
-        if (isSprintHeld > 0)
+
+        // Handle sprint logic
+        if ((isSprintHeld > 0) && (staminaBar.BarValue > 0))
+        {
+            staminaBar.UpdateBarValue(1);
             _sprinting = true;
-        else 
+        }
+        else
+        {
+            if (staminaBar.BarValue < staminaBar.maxBarValue)
+                staminaBar.UpdateBarValue(-1);
             _sprinting = false;
+        }
 
         float targetSpeed = _sprinting ? sprintSpeed : moveSpeed;
          
+        //Gather player input
         if (_moveInput == Vector2.zero) targetSpeed = 0.0f;
         
         _speed = targetSpeed;
@@ -87,4 +110,10 @@ public class PlayerController : MonoBehaviour
 
         _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime));
     }
+
+    private void PlayerDamage(int amt)
+    {
+        healthBar.UpdateBarValue(amt);
+    }
+
 }

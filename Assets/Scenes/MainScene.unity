@@ -1500,6 +1500,10 @@ PrefabInstance:
       propertyPath: healthBar
       value: 
       objectReference: {fileID: 1556989315}
+    - target: {fileID: 7688302752956455234, guid: 0216bf9f24d001047b5193f027f40fe0, type: 3}
+      propertyPath: staminaBar
+      value: 
+      objectReference: {fileID: 1484366326}
     - target: {fileID: 8209797359869991378, guid: 0216bf9f24d001047b5193f027f40fe0, type: 3}
       propertyPath: m_Name
       value: player
@@ -1766,7 +1770,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   backgroundBar: {fileID: 1484366323}
   bar: {fileID: 9653995}
-  maxHealth: 250
+  maxBarValue: 100
   barHeight: 25
   barWidth: 250
 --- !u!1 &1492445885
@@ -1981,7 +1985,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   backgroundBar: {fileID: 1556989312}
   bar: {fileID: 1963547412}
-  maxHealth: 300
+  maxBarValue: 100
   barHeight: 25
   barWidth: 300
 --- !u!1 &1601703781
