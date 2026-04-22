@@ -8,6 +8,8 @@ public class PlayerController : MonoBehaviour
     public HealthBarScript healthBar;
     public HealthBarScript staminaBar;
 
+    public Animator anim;
+
     public float moveSpeed = 5.0f;
     public float sprintSpeed = 7.0f;
     public float rotationSmoothTime = 0.12f;
@@ -17,6 +19,7 @@ public class PlayerController : MonoBehaviour
     private GameObject _mainCamera;
     private CharacterController _controller;
     private PlayerInput _playerInput;
+    
 
     private float _speed;
     private float _targetRotation;
@@ -57,19 +60,27 @@ public class PlayerController : MonoBehaviour
         EventManager.StopListening("PlayerDamager", DamageListener);
     }
 
+    //New input system move input
     private void OnMove(InputValue moveVal)
     {
         _moveInput = moveVal.Get<Vector2>();
     }
 
+    //New Input system attack input
     private void OnAttack(InputValue AttackVal)
     {
-        //healthBar.UpdateBarValue(10);
+        Debug.Log("Attacking");
+        anim.SetTrigger("isAttacking");
     }
 
+    private void OnDash(InputValue DashVal)
+    {
+        anim.SetTrigger("isDashing");
+    }
+
+    //Handle player movement via modified Unity Starter 3D character movement script
     private void Move()
     {
-        //Code modified from Unity Starter 3D character movement script
 
         float isSprintHeld = _playerInput.actions["Sprint"].ReadValue<float>();
 
