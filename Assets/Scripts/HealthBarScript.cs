@@ -1,3 +1,7 @@
+//4/5/2026
+//Christian Andrion
+//Script to handle health bars and the stamina bar
+
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;

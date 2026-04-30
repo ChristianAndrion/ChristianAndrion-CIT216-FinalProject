@@ -1,3 +1,7 @@
+//4/28/2026
+//Christian Andrion
+//Attatched to a character/enemy with a rigidbody to detect when a hitbox collides
+
 using UnityEngine;
 using UnityEngine.Events;
 

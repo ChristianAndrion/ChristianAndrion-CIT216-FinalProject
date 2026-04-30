@@ -1,3 +1,7 @@
+//4/30/2026
+//Christian Andrion
+//Script to periodically spawn enemies
+
 using System.Collections;
 using UnityEngine;
 
