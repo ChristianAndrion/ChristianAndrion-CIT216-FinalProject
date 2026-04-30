@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 public class HealthBarScript : MonoBehaviour
 {
@@ -24,7 +25,7 @@ public class HealthBarScript : MonoBehaviour
             currentBarValue -= value;
             if(currentBarValue<=0)
             {
-                //TODO - Insert Death Script
+                SceneManager.LoadScene("GameOverScene");
             }
         }
     } 

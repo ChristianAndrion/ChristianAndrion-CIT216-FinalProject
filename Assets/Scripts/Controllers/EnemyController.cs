@@ -4,23 +4,25 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Events;
 using UnityEngine.XR;
+using static UnityEngine.Rendering.DebugUI;
 
 public class EnemyController : MonoBehaviour
 {
     public enum EnemyState { Patrol, Chase, Attack };
     public EnemyState currentState;
-    public Transform playerTrans;
+    public GameObject player;
+    private Transform playerTrans;
     public float recoverTime = 3f;
     public float chaseDistance = 10f;
     public float attackDistance = 2f;
+    public GameObject hitbox;
 
     private NavMeshAgent agent;
     private Billboard billboard;
     private float patrolDistance = 5f;
     private Animator anim;
     private int health = 100;
-    private int damageAmount = 20;
-    private UnityAction<int> DamageListener;
+    private UnityAction<int,GameObject> DamageListener;
 
     public int Health
     {
@@ -41,28 +43,32 @@ public class EnemyController : MonoBehaviour
 
     private void OnEnable()
     {
-        DamageListener = new UnityAction<int>(ApplyDamage);// Delegate points to function that handles event
-        EventManager.StartListening("EnemyDamager", DamageListener); //Like and subscribe to an event
+        DamageListener = new UnityAction<int,GameObject>(ApplyDamage);// Delegate points to function that handles event
+        EventManager.StartListening("Damager", DamageListener); //Like and subscribe to an event
     }
 
     private void OnDisable()
     {
-        EventManager.StopListening("EnemyDamager", DamageListener);
+        EventManager.StopListening("Damager", DamageListener);
     }
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         billboard = GetComponent<Billboard>();
         anim = GetComponent<Animator>();
+        player = GameObject.FindWithTag("player");
 
         ChangeState(EnemyState.Patrol);
     }
 
+
+    //Triggers when the player changes state
     void ChangeState(EnemyState newState)
     {
-        Debug.Log("New State: " + newState);
+        //Debug.Log("New State: " + newState);
         currentState = newState;
         StopAllCoroutines();
+        playerTrans = player.transform;
 
         switch (currentState)
         {
@@ -81,6 +87,7 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    //Patroling when player is not yet spotted
     IEnumerator AI_Patrol()
     {
         billboard.enabled = false;
@@ -105,6 +112,7 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    //Chase the player when player is in range
     IEnumerator AI_Chase()
     {
         billboard.enabled = true;
@@ -127,12 +135,11 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    //Attack state
     IEnumerator AI_Attack()
     {
         float elapsedTime = recoverTime + 1;
         billboard.enabled = true;
-        //anim.SetBool("IsPatrolling", true);
-        //anim.SetBool("IsChasing", true);
         anim.SetBool("IsAttacking", true);
 
         while (true)
@@ -142,7 +149,7 @@ public class EnemyController : MonoBehaviour
                 anim.SetBool("IsAttacking", true);
                 elapsedTime = 0f; //Just attacked, reset count
 
-                EventManager.TriggerEvent("PlayerDamager", damageAmount);
+                Invoke("EnableHitbox",0.5f);
             }
             else
             {
@@ -161,9 +168,24 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    public void ApplyDamage(int amt)
+    void EnableHitbox()
     {
-        Health = amt; //Subtracting from health due to setter
-        Debug.Log("Enemy Damaged");
+        hitbox.SetActive(true);
+        Invoke("DisableHitbox", 0.5f);
+    }
+
+    void DisableHitbox()
+    {
+        hitbox.SetActive(false);
+    }
+
+    //Applying damage to self
+    public void ApplyDamage(int amt, GameObject obj)
+    {
+        if (obj == gameObject)
+        {
+            Health = amt; //Subtracting from health due to setter
+            Debug.Log("Enemy Damaged, Health" + health);
+        }
     }
 }

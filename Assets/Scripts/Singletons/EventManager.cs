@@ -9,7 +9,7 @@ public class EventManager : MonoBehaviour
 {
 
     //These are the things we are going to listen to
-    private Dictionary<string, UnityAction<int>> eventDictionary;
+    private Dictionary<string, UnityAction<int,GameObject>> eventDictionary;
 
     //allows us to access the instance from other classes!
     private static EventManager eventManager;
@@ -41,11 +41,11 @@ public class EventManager : MonoBehaviour
     {
         if (eventDictionary == null)
         {
-            eventDictionary = new Dictionary<string, UnityAction<int>>();
+            eventDictionary = new Dictionary<string, UnityAction<int,GameObject>>();
         }
     }
 
-    public static void StartListening(string eventName, UnityAction<int> listener)
+    public static void StartListening(string eventName, UnityAction<int,GameObject> listener)
     {
         if (instance.eventDictionary.ContainsKey(eventName))
         {
@@ -57,7 +57,7 @@ public class EventManager : MonoBehaviour
         }
     }
 
-    public static void StopListening(string eventName, UnityAction<int> listener)
+    public static void StopListening(string eventName, UnityAction<int,GameObject> listener)
     {
         if (instance.eventDictionary.ContainsKey(eventName))
         {
@@ -65,12 +65,12 @@ public class EventManager : MonoBehaviour
         }
     }
 
-    public static void TriggerEvent(string eventName, int value = 0)
+    public static void TriggerEvent(string eventName, int value = 0, GameObject givenObject = null)
     {
-        UnityAction<int> thisEvent = null;
+        UnityAction<int,GameObject> thisEvent = null;
         if (instance.eventDictionary.TryGetValue(eventName, out thisEvent))
         {
-            thisEvent.Invoke(value);
+            thisEvent.Invoke(value, givenObject);
         }
     }
 }

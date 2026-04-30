@@ -8,6 +8,8 @@ TagManager:
   - CinemachineTarget
   - enemy
   - player
+  - hitbox
+  - hurtbox
   layers:
   - Default
   - TransparentFX
@@ -15,9 +17,9 @@ TagManager:
   - Walls
   - Water
   - UI
-  - 
-  - 
-  - 
+  - Player
+  - Hitbox
+  - Hurtbox
   - 
   - 
   - 

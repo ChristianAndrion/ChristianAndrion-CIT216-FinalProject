@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -7,6 +8,7 @@ public class PlayerController : MonoBehaviour
     
     public HealthBarScript healthBar;
     public HealthBarScript staminaBar;
+    public GameObject hitbox;
 
     public Animator anim;
 
@@ -19,6 +21,7 @@ public class PlayerController : MonoBehaviour
     private GameObject _mainCamera;
     private CharacterController _controller;
     private PlayerInput _playerInput;
+    private HurtboxScript hurtbox;
     
 
     private float _speed;
@@ -28,8 +31,9 @@ public class PlayerController : MonoBehaviour
     //Input System
     private Vector2 _moveInput;
     private bool _sprinting = false;
+    private bool _dashing = false;
 
-    private UnityAction<int> DamageListener;
+    private UnityAction<int,GameObject> DamageListener;
 
     private void Awake()
     {
@@ -41,8 +45,9 @@ public class PlayerController : MonoBehaviour
     }
     void Start()
     {
-            _controller = GetComponent<CharacterController>();
-            _playerInput = GetComponent<PlayerInput>();
+        _controller = GetComponent<CharacterController>();
+        _playerInput = GetComponent<PlayerInput>();
+        hurtbox = GetComponent<HurtboxScript>();
     }
     private void FixedUpdate()
     {
@@ -51,13 +56,13 @@ public class PlayerController : MonoBehaviour
 
     private void OnEnable()
     {
-        DamageListener = new UnityAction<int>(PlayerDamage);// Delegate points to function that handles event
-        EventManager.StartListening("PlayerDamager", DamageListener); //Like and subscribe to an event
+        DamageListener = new UnityAction<int,GameObject>(PlayerDamage);// Delegate points to function that handles event
+        EventManager.StartListening("Damager", DamageListener); //Like and subscribe to an event
     }
 
     private void OnDisable()
     {
-        EventManager.StopListening("PlayerDamager", DamageListener);
+        EventManager.StopListening("Damager", DamageListener);
     }
 
     //New input system move input
@@ -71,11 +76,43 @@ public class PlayerController : MonoBehaviour
     {
         Debug.Log("Attacking");
         anim.SetTrigger("isAttacking");
+        EnableHitbox();
+    }
+
+    void EnableHitbox()
+    {
+        hitbox.SetActive(true);
+        Invoke("DisableHitbox", 0.5f);
+    }
+
+    void DisableHitbox()
+    {
+        hitbox.SetActive(false);
     }
 
     private void OnDash(InputValue DashVal)
     {
-        anim.SetTrigger("isDashing");
+        if (staminaBar.BarValue > 30)
+        {
+            staminaBar.UpdateBarValue(30);
+            Dashing();
+        }
+    }
+
+    void Dashing()
+    {
+        _dashing = true;
+        anim.SetBool("isDashing", _dashing);
+        hurtbox.enabled = _dashing;
+        Invoke("EndDash",0.75f);
+    }
+
+    void EndDash()
+    {
+        _dashing = false;
+        anim.SetBool("isDashing", _dashing);
+        hurtbox.enabled = _dashing;
+
     }
 
     //Handle player movement via modified Unity Starter 3D character movement script
@@ -96,7 +133,10 @@ public class PlayerController : MonoBehaviour
                 staminaBar.UpdateBarValue(-1);
             _sprinting = false;
         }
+        if (_dashing != true)
+            anim.SetBool("isDashing",_sprinting);                   
 
+        //Check if sprinting
         float targetSpeed = _sprinting ? sprintSpeed : moveSpeed;
          
         //Gather player input
@@ -106,6 +146,7 @@ public class PlayerController : MonoBehaviour
         
         Vector3 inputDirection = new Vector3(_moveInput.x,0.0f, _moveInput.y).normalized;
 
+        //No move input
         if(_moveInput != Vector2.zero)
         {
             _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
@@ -122,9 +163,13 @@ public class PlayerController : MonoBehaviour
         _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime));
     }
 
-    private void PlayerDamage(int amt)
+    private void PlayerDamage(int amt, GameObject obj)
     {
-        healthBar.UpdateBarValue(amt);
+        if (obj == gameObject)
+        {
+            healthBar.UpdateBarValue(amt);
+            Debug.Log("Player Damaged, Health: " + healthBar.BarValue);
+        }
     }
 
 }
